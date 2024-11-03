@@ -1,56 +1,57 @@
-import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import React, { Suspense, useEffect, useState } from 'react';
+import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { CSpinner, useColorModes } from '@coreui/react';
+import './scss/style.scss';
 
-import { CSpinner, useColorModes } from '@coreui/react'
-import './scss/style.scss'
-
-// Containers
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-
-// Pages
-const Login = React.lazy(() => import('./views/pages/login/Login'))
-const Register = React.lazy(() => import('./views/pages/register/Register'))
-const Page404 = React.lazy(() => import('./views/pages/page404/Page404'))
-const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
+// Componentes
+const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'));
+const Register = React.lazy(() => import('./views/pages/register/Register'));
+const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
+const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
+import LoginForm from './components/login/loginForm'; // Importar el formulario de login
 
 const App = () => {
-  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
-  const storedTheme = useSelector((state) => state.theme)
+  const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
+  const storedTheme = useSelector((state) => state.theme);
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
+  
+  const handleLogin = () => {
+    setIsAuthenticated(true); // Cambia el estado de autenticado a verdadero
+  };
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.href.split('?')[1])
-    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
+    const urlParams = new URLSearchParams(window.location.href.split('?')[1]);
+    const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0];
     if (theme) {
-      setColorMode(theme)
+      setColorMode(theme);
     }
 
-    if (isColorModeSet()) {
-      return
+    if (!isColorModeSet()) {
+      setColorMode(storedTheme);
     }
-
-    setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <HashRouter>
-      <Suspense
-        fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
-      >
+      <Suspense fallback={<div className="pt-3 text-center"><CSpinner color="primary" variant="grow" /></div>}>
         <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route exact path="/register" name="Register Page" element={<Register />} />
-          <Route exact path="/404" name="Page 404" element={<Page404 />} />
-          <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          {!isAuthenticated ? (
+            // Si no está autenticado, muestra la página de login
+            <Route path="/login" element={<LoginForm onLogin={handleLogin} />} />
+          ) : (
+            // Si está autenticado, muestra el layout principal
+            <Route path="*" element={<DefaultLayout />} />
+          )}
+          <Route path="/register" name="Register Page" element={<Register />} />
+          <Route path="/404" name="Page 404" element={<Page404 />} />
+          <Route path="/500" name="Page 500" element={<Page500 />} />
+          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </Suspense>
     </HashRouter>
-  )
-}
+  );
+};
 
-export default App
+export default App;

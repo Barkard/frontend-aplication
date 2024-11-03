@@ -75,7 +75,7 @@ class Users extends React.Component{
     }
 
     eliminar=(dato)=>{
-        var opcion=window.confirm("Realmente desea eliminar el usuario "+dato.id+"?");
+        var opcion=window.confirm("Do you really want to delete the user "+dato.id+"?");
         if(opcion){
             var contador=0;
             var lista = this.state.data;
@@ -94,7 +94,7 @@ class Users extends React.Component{
             <>
             <Container>
             <br/>
-            <Button color="success" onClick={()=>this.mostrarModalInsertar()}>Insertar Nuevo Usuario</Button>
+            <Button color="success" onClick={()=>this.mostrarModalInsertar()}>Insert New User</Button>
             <br/><br/>
 
             <Table>
@@ -103,15 +103,15 @@ class Users extends React.Component{
                 <th>Last Name</th>
                 <th>Email</th>
                 <th>Actions</th></tr></thead>
-                <tbody>
+                <tbody >
                     {this.state.data.map((elemento)=>(
                         <tr>
                             <td>{elemento.id}</td>
                             <td>{elemento.nombre}</td>
                             <td>{elemento.apellido}</td>
                             <td>{elemento.correo}</td>
-                            <td><Button color="primary" onClick={()=>this.mostrarModalEditar(elemento)}>Editar</Button>{"  "}
-                            <Button color="danger" onClick={()=>this.eliminar(elemento)}>Eliminar</Button></td>
+                            <td><Button color="primary" onClick={()=>this.mostrarModalEditar(elemento)}>Edit</Button>{"  "}
+                            <Button color="danger" onClick={()=>this.eliminar(elemento)}>Delete</Button></td>
                         </tr>
                     ))}
                 </tbody>
@@ -149,8 +149,8 @@ class Users extends React.Component{
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button color="primary" onClick={()=>this.insertar()}>Insertar</Button>
-                    <Button color="danger" onClick={()=>this.ocultarModalInsertar()}>Cancelar</Button>
+                    <Button color="primary" onClick={()=>this.insertar()}>Create</Button>
+                    <Button color="danger" onClick={()=>this.ocultarModalInsertar()}>Cancel</Button>
                 </ModalFooter>
             </Modal>
 
@@ -184,8 +184,8 @@ class Users extends React.Component{
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button color="primary" onClick={()=>this.editar(this.state.form)}>Editar</Button>
-                    <Button color="danger" onClick={()=>this.ocultarModalEditar()}>Cancelar</Button>
+                    <Button color="primary" onClick={()=>this.editar(this.state.form)}>Edit</Button>
+                    <Button color="secondary" onClick={()=>this.ocultarModalEditar()}>Cancel</Button>
                 </ModalFooter>
             </Modal>
             </>
