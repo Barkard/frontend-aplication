@@ -1,13 +1,12 @@
-// src/views/users/Users.js
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Table, Button, Container, Modal, ModalBody, ModalHeader, FormGroup, ModalFooter} from 'reactstrap'
 
 const data = [
-    {id: 1,nombre: "Leon",apellido: "Pineda",correo: "leonpf_15@gmail.com"},
-    {id: 2,nombre: "Roaxi",apellido: "Gamboa",correo: "roaxig_20@gmail.com"},
-    {id: 3,nombre: "Diana",apellido: "Pineda",correo: "dianapf_22@gmail.com"},
-    {id: 4,nombre: "Angel",apellido: "Pernia",correo: "angelp_10@gmail.com"},
+    {id: 1,name: "Leon",last_name: "Pineda",email: "leonpf_15@gmail.com"},
+    {id: 2,name: "Roaxi",last_name: "Gamboa",email: "roaxig_20@gmail.com"},
+    {id: 3,name: "Diana",last_name: "Pineda",email: "dianapf_22@gmail.com"},
+    {id: 4,name: "Angel",last_name: "Pernia",email: "angelp_10@gmail.com"},
 ];
 
 class Users extends React.Component{
@@ -15,9 +14,9 @@ class Users extends React.Component{
         data: data,
         form:{
             id:'',
-            nombre:'',
-            apellido:'',
-            correo:'',
+            name:'',
+            last_name:'',
+            email:'',
         },
         modalInsertar: false,
         modalEditar: false,
@@ -65,9 +64,9 @@ class Users extends React.Component{
         var lista=this.state.data;
         lista.map((registro)=>{
             if(dato.id==registro.id){
-                lista[contador].nombre=dato.nombre;
-                lista[contador].apellido=dato.apellido;
-                lista[contador].correo=dato.correo;
+                lista[contador].name=dato.name;
+                lista[contador].last_name=dato.last_name;
+                lista[contador].email=dato.email;
             }
             contador++;
         });
@@ -107,9 +106,9 @@ class Users extends React.Component{
                     {this.state.data.map((elemento)=>(
                         <tr>
                             <td>{elemento.id}</td>
-                            <td>{elemento.nombre}</td>
-                            <td>{elemento.apellido}</td>
-                            <td>{elemento.correo}</td>
+                            <td>{elemento.name}</td>
+                            <td>{elemento.last_name}</td>
+                            <td>{elemento.email}</td>
                             <td><Button color="primary" onClick={()=>this.mostrarModalEditar(elemento)}>Edit</Button>{"  "}
                             <Button color="danger" onClick={()=>this.eliminar(elemento)}>Delete</Button></td>
                         </tr>
@@ -134,17 +133,17 @@ class Users extends React.Component{
 
                     <FormGroup>
                         <label>Name:</label>
-                        <input className="form-control" name="nombre" type="text" onChange={this.handleChange}/>
+                        <input className="form-control" name="name" type="text" onChange={this.handleChange}/>
                     </FormGroup>
 
                     <FormGroup>
                         <label>Last Name:</label>
-                        <input className="form-control" name="apellido" type="text" onChange={this.handleChange}/>
+                        <input className="form-control" name="last_name" type="text" onChange={this.handleChange}/>
                     </FormGroup>
 
                     <FormGroup>
                         <label>Email:</label>
-                        <input className="form-control" name="correo" type="email" onChange={this.handleChange}/>
+                        <input className="form-control" name="email" type="email" onChange={this.handleChange}/>
                     </FormGroup>
                 </ModalBody>
 
@@ -169,17 +168,17 @@ class Users extends React.Component{
 
                     <FormGroup>
                         <label>Name:</label>
-                        <input className="form-control" name="nombre" type="text" onChange={this.handleChange} value={this.state.form.nombre}/>
+                        <input className="form-control" name="name" type="text" onChange={this.handleChange} value={this.state.form.name}/>
                     </FormGroup>
 
                     <FormGroup>
                         <label>Last Name:</label>
-                        <input className="form-control" name="apellido" type="text" onChange={this.handleChange} value={this.state.form.apellido}/>
+                        <input className="form-control" name="last_name" type="text" onChange={this.handleChange} value={this.state.form.last_name}/>
                     </FormGroup>
 
                     <FormGroup>
                         <label>Email:</label>
-                        <input className="form-control" name="correo" type="email" onChange={this.handleChange} value={this.state.form.correo}/>
+                        <input className="form-control" name="email" type="email" onChange={this.handleChange} value={this.state.form.email}/>
                     </FormGroup>
                 </ModalBody>
 

@@ -3,19 +3,21 @@ import { HashRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { CSpinner, useColorModes } from '@coreui/react';
 import './scss/style.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 // Componentes
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'));
 const Register = React.lazy(() => import('./views/pages/register/Register'));
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
-import LoginForm from './components/login/loginForm'; // Importar el formulario de login
+import LoginForm from './components/login/loginForm';
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme');
   const storedTheme = useSelector((state) => state.theme);
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   const handleLogin = () => {
     setIsAuthenticated(true); // Cambia el estado de autenticado a verdadero
