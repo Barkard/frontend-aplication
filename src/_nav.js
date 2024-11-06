@@ -31,7 +31,7 @@ import {
   {
     component: CNavItem,
     name: 'Users',
-    to: '/',
+    to: '/Users',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
 },
 
