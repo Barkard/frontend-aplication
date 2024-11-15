@@ -48,7 +48,7 @@ class Users extends React.Component{
     }
 
     ocultarModalEditar=()=>{
-        this.setState({modalEditar: true});
+        this.setState({modalEditar: false});
     }
 
     insertar=()=>{
@@ -153,7 +153,7 @@ class Users extends React.Component{
                 </ModalFooter>
             </Modal>
 
-            <Modal isOpen={this.state}>
+            <Modal isOpen={this.state.modalEditar}>
                 <ModalHeader>
                     <div>
                         <h3>Editar Usuario</h3>
