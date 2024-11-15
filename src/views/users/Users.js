@@ -1,195 +1,190 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import {Table, Button, Container, Modal, ModalBody, FormGroup, ModalFooter, ModalHeader} from 'reactstrap'
+import React, { useState } from 'react';
+import {
+  CButton,
+  CContainer,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CForm,
+  CFormInput,
+  CCol,
+  CRow,
+  CAlert,
+} from '@coreui/react';
 
-const data = [
-    {id: 1,name: "Leon",last_name: "Pineda",email: "leonpf_15@gmail.com"},
-    {id: 2,name: "Roaxi",last_name: "Gamboa",email: "roaxig_20@gmail.com"},
-    {id: 3,name: "Diana",last_name: "Pineda",email: "dianapf_22@gmail.com"},
-    {id: 4,name: "Angel",last_name: "Pernia",email: "angelp_10@gmail.com"},
-];
+const UserManagement = () => {
+  const [users, setUsers] = useState([
+    { id: 1, name: 'Leon', lastname: 'Pineda', cedula: '28168315', email: 'leonpineda@gmail.com', birthdate: '2000-06-15' },
+    { id: 2, name: 'Diana', lastname: 'Pineda', cedula: '28168314', email: 'dianapineda@gmail.com', birthdate: '2001-11-22' },
+    { id: 3, name: 'Roaxi', lastname: 'Gamboa', cedula: '30152152', email: 'roaxig@gmail.com', birthdate: '2003-10-20' },
+    { id: 4, name: 'Carlos', lastname: 'Mora', cedula: '28168316', email: 'carlosmora@gmail.com', birthdate: '2000-08-16' },
+  ]);
 
-class Users extends React.Component{
-    state={
-        data: data,
-        form:{
-            id:'',
-            name:'',
-            last_name:'',
-            email:'',
-        },
-        modalInsertar: false,
-        modalEditar: false,
-    };
+  const [form, setForm] = useState({ id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
-    handleChange=e=>{
-        this.setState({
-            form:{
-                ...this.state.form,
-                [e.target.name]: e.target.value,
-            }
-        });
-    }
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-    //INSERTAR
+  const openModal = (user = { id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' }, editing = false) => {
+    setForm(user);
+    setIsEditing(editing);
+    setModalVisible(true);
+  };
 
-    mostrarModalInsertar=()=>{
-        this.setState({modalInsertar: true});
-    }
+  const closeModal = () => {
+    setModalVisible(false);
+    setForm({ id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' });
+  };
 
-    ocultarModalInsertar=()=>{
-        this.setState({modalInsertar: false});
-    }
+  const openDeleteModal = (user) => {
+    setUserToDelete(user);
+    setDeleteModalVisible(true);
+  };
 
-    //EDITAR
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+    setUserToDelete(null);
+  };
 
-    mostrarModalEditar=(registro)=>{
-        this.setState({modalEditar: true, form: registro});
-    }
+  const getNewId = () => {
+    return users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1;
+  };
 
-    ocultarModalEditar=()=>{
-        this.setState({modalEditar: false});
-    }
+  const addUser = () => {
+    const newUser = { ...form, id: getNewId() };
+    setUsers([...users, newUser]);
+    closeModal();
+  };
 
-    insertar=()=>{
-        var valorNuevo={...this.state.form};
-        valorNuevo.id=this.state.data.length+1;
-        var lista=this.state.data;
-        lista.push(valorNuevo);
-        this.setState({data: lista, modalInsertar: false});
-    }
+  const editUser = () => {
+    const updatedUsers = users.map((user) =>
+      user.id === form.id ? { ...user, ...form } : user
+    );
+    setUsers(updatedUsers);
+    closeModal();
+  };
 
-    editar=(dato)=>{
-        var contador=0;
-        var lista=this.state.data;
-        lista.map((registro)=>{
-            if(dato.id==registro.id){
-                lista[contador].name=dato.name;
-                lista[contador].last_name=dato.last_name;
-                lista[contador].email=dato.email;
-            }
-            contador++;
-        });
-        this.setState({data: lista, modalEditar: false});
-    }
+  const deleteUser = () => {
+    setUsers(users.filter((user) => user.id !== userToDelete.id));
+    closeDeleteModal();
+  };
 
-    eliminar=(dato)=>{
-        var opcion=window.confirm("Do you really want to delete the user "+dato.id+"?");
-        if(opcion){
-            var contador=0;
-            var lista = this.state.data;
-            lista.map((registro)=>{
-                if(registro.id==dato.id){
-                    lista.splice(contador, 1);
-                }
-                contador++;
-            });
-            this.setState({data: lista});
-        }
-    }
+  return (
+    <CContainer>
+      <CButton color="success" onClick={() => openModal()} className="my-3">
+        Add User
+      </CButton>
 
-    render(){
-        return(
-            <>
-            <Container>
-            <br/>
-            <Button color="success" onClick={()=>this.mostrarModalInsertar()}>Insert New User</Button>
-            <br/><br/>
+      <CTable className="table table-dark table-hover">
+        <CTableHead>
+          <CTableRow>
+            <CTableHeaderCell>ID</CTableHeaderCell>
+            <CTableHeaderCell>Name</CTableHeaderCell>
+            <CTableHeaderCell>Last Name</CTableHeaderCell>
+            <CTableHeaderCell>ID Number</CTableHeaderCell>
+            <CTableHeaderCell>Email</CTableHeaderCell>
+            <CTableHeaderCell>Birthdate</CTableHeaderCell>
+            <CTableHeaderCell>Actions</CTableHeaderCell>
+          </CTableRow>
+        </CTableHead>
+        <CTableBody>
+          {users.map((user) => (
+            <CTableRow key={user.id}>
+              <CTableDataCell>{user.id}</CTableDataCell>
+              <CTableDataCell>{user.name}</CTableDataCell>
+              <CTableDataCell>{user.lastname}</CTableDataCell>
+              <CTableDataCell>{user.cedula}</CTableDataCell>
+              <CTableDataCell>{user.email}</CTableDataCell>
+              <CTableDataCell>{user.birthdate}</CTableDataCell>
+              <CTableDataCell>
+                <CButton color="primary" className="me-2" onClick={() => openModal(user, true)}>
+                  Edit
+                </CButton>
+                <CButton color="danger" onClick={() => openDeleteModal(user)}>
+                  Delete
+                </CButton>
+              </CTableDataCell>
+            </CTableRow>
+          ))}
+        </CTableBody>
+      </CTable>
 
-            <Table>
-                <thead><tr><th>Id</th>
-                <th>Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Actions</th></tr></thead>
-                <tbody >
-                    {this.state.data.map((elemento)=>(
-                        <tr>
-                            <td>{elemento.id}</td>
-                            <td>{elemento.name}</td>
-                            <td>{elemento.last_name}</td>
-                            <td>{elemento.email}</td>
-                            <td><Button color="primary" onClick={()=>this.mostrarModalEditar(elemento)}>Edit</Button>{"  "}
-                            <Button color="danger" onClick={()=>this.eliminar(elemento)}>Delete</Button></td>
-                        </tr>
-                    ))}
-                </tbody>
+      {/* Modal for Add or Edit */}
+      <CModal visible={modalVisible} onClose={closeModal}>
+        <CModalHeader closeButton>
+          <CModalTitle>{isEditing ? 'Edit User' : 'Add User'}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormInput label="Name" name="name" value={form.name} onChange={handleChange} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormInput label="Last Name" name="lastname" value={form.lastname} onChange={handleChange} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormInput label="ID Number" name="cedula" value={form.cedula} onChange={handleChange} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormInput label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormInput label="Birthdate" name="birthdate" type="date" value={form.birthdate} onChange={handleChange} />
+              </CCol>
+            </CRow>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={isEditing ? editUser : addUser}>
+            {isEditing ? 'Save Changes' : 'Add'}
+          </CButton>
+          <CButton color="secondary" onClick={closeModal}>
+            Cancel
+          </CButton>
+        </CModalFooter>
+      </CModal>
 
-            </Table>
-            </Container>
+      {/* Delete Confirmation Modal */}
+      <CModal visible={deleteModalVisible} onClose={closeDeleteModal}>
+        <CModalHeader closeButton>
+          <CModalTitle>Confirm Deletion</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Are you sure you want to delete user <strong>{userToDelete?.name}</strong>?
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="danger" onClick={deleteUser}>
+            Delete
+          </CButton>
+          <CButton color="secondary" onClick={closeDeleteModal}>
+            Cancel
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </CContainer>
+  );
+};
 
-            <Modal isOpen={this.state.modalInsertar}>
-                <ModalHeader>
-                    <div>
-                        <h3>Insertar Registro</h3>
-                    </div>
-                </ModalHeader>
-
-                <ModalBody>
-                    <FormGroup>
-                        <label>Id:</label>
-                        <input className="form-control" readOnly type="text" value={this.state.data.length+1}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Name:</label>
-                        <input className="form-control" name="name" type="text" onChange={this.handleChange}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Last Name:</label>
-                        <input className="form-control" name="last_name" type="text" onChange={this.handleChange}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Email:</label>
-                        <input className="form-control" name="email" type="email" onChange={this.handleChange}/>
-                    </FormGroup>
-                </ModalBody>
-
-                <ModalFooter>
-                    <Button color="primary" onClick={()=>this.insertar()}>Create</Button>
-                    <Button color="danger" onClick={()=>this.ocultarModalInsertar()}>Cancel</Button>
-                </ModalFooter>
-            </Modal>
-
-            <Modal isOpen={this.state.modalEditar}>
-                <ModalHeader>
-                    <div>
-                        <h3>Editar Usuario</h3>
-                    </div>
-                </ModalHeader>
-
-                <ModalBody>
-                    <FormGroup>
-                        <label>Id:</label>
-                        <input className="form-control" readOnly type="text" value={this.state.form.id}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Name:</label>
-                        <input className="form-control" name="name" type="text" onChange={this.handleChange} value={this.state.form.name}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Last Name:</label>
-                        <input className="form-control" name="last_name" type="text" onChange={this.handleChange} value={this.state.form.last_name}/>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <label>Email:</label>
-                        <input className="form-control" name="email" type="email" onChange={this.handleChange} value={this.state.form.email}/>
-                    </FormGroup>
-                </ModalBody>
-
-                <ModalFooter>
-                    <Button color="primary" onClick={()=>this.editar(this.state.form)}>Edit</Button>
-                    <Button color="secondary" onClick={()=>this.ocultarModalEditar()}>Cancel</Button>
-                </ModalFooter>
-            </Modal>
-            </>
-        )
-    }
-}
-
-export default Users;
+export default UserManagement;
