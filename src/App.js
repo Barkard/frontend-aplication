@@ -54,6 +54,7 @@ const App = () => {
       </Suspense>
     </HashRouter>
   );
+  
 };
 
 export default App;

@@ -17,18 +17,18 @@ import {
   CFormInput,
   CCol,
   CRow,
-  CAlert,
+  CFormCheck,  // Importamos el componente de CoreUI para el checkbox
 } from '@coreui/react';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([
-    { id: 1, name: 'Leon', lastname: 'Pineda', cedula: '28168315', email: 'leonpineda@gmail.com', birthdate: '2000-06-15' },
-    { id: 2, name: 'Diana', lastname: 'Pineda', cedula: '28168314', email: 'dianapineda@gmail.com', birthdate: '2001-11-22' },
-    { id: 3, name: 'Roaxi', lastname: 'Gamboa', cedula: '30152152', email: 'roaxig@gmail.com', birthdate: '2003-10-20' },
-    { id: 4, name: 'Carlos', lastname: 'Mora', cedula: '28168316', email: 'carlosmora@gmail.com', birthdate: '2000-08-16' },
+    { id: 1, name: 'Leon', lastname: 'Pineda', id_card: 28168315, email: 'leonpineda@gmail.com', birthdate: '2000-06-15', is_active: true },
+    { id: 2, name: 'Diana', lastname: 'Pineda', id_card: 28168314, email: 'dianapineda@gmail.com', birthdate: '2001-11-22', is_active: true },
+    { id: 3, name: 'Roaxi', lastname: 'Gamboa', id_card: 30152152, email: 'roaxig@gmail.com', birthdate: '2003-10-20', is_active: true },
+    { id: 4, name: 'Carlos', lastname: 'Mora', id_card: 28168316, email: 'carlosmora@gmail.com', birthdate: '2000-08-16', is_active: true },
   ]);
 
-  const [form, setForm] = useState({ id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' });
+  const [form, setForm] = useState({ id: '', name: '', lastname: '', id_card: '', email: '', birthdate: '', is_active: true });
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -38,7 +38,11 @@ const UserManagement = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const openModal = (user = { id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' }, editing = false) => {
+  const handleCheckChange = () => {
+    setForm({ ...form, is_active: !form.is_active });
+  };
+
+  const openModal = (user = { id: '', name: '', lastname: '', id_card: '', email: '', birthdate: '', is_active: true }, editing = false) => {
     setForm(user);
     setIsEditing(editing);
     setModalVisible(true);
@@ -46,7 +50,7 @@ const UserManagement = () => {
 
   const closeModal = () => {
     setModalVisible(false);
-    setForm({ id: '', name: '', lastname: '', cedula: '', email: '', birthdate: '' });
+    setForm({ id: '', name: '', lastname: '', id_card: '', email: '', birthdate: '', is_active: true });
   };
 
   const openDeleteModal = (user) => {
@@ -88,7 +92,7 @@ const UserManagement = () => {
         Add User
       </CButton>
 
-      <CTable className="table table-dark table-hover">
+      <CTable className="table">
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell>ID</CTableHeaderCell>
@@ -97,6 +101,7 @@ const UserManagement = () => {
             <CTableHeaderCell>ID Number</CTableHeaderCell>
             <CTableHeaderCell>Email</CTableHeaderCell>
             <CTableHeaderCell>Birthdate</CTableHeaderCell>
+            <CTableHeaderCell>Status</CTableHeaderCell>
             <CTableHeaderCell>Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
@@ -106,9 +111,16 @@ const UserManagement = () => {
               <CTableDataCell>{user.id}</CTableDataCell>
               <CTableDataCell>{user.name}</CTableDataCell>
               <CTableDataCell>{user.lastname}</CTableDataCell>
-              <CTableDataCell>{user.cedula}</CTableDataCell>
+              <CTableDataCell>{user.id_card}</CTableDataCell>
               <CTableDataCell>{user.email}</CTableDataCell>
               <CTableDataCell>{user.birthdate}</CTableDataCell>
+              <CTableDataCell>
+                <CFormCheck
+                  checked={user.is_active}
+                  onChange={() => {}}
+                  disabled
+                />
+              </CTableDataCell>
               <CTableDataCell>
                 <CButton color="primary" className="me-2" onClick={() => openModal(user, true)}>
                   Edit
@@ -141,7 +153,7 @@ const UserManagement = () => {
             </CRow>
             <CRow className="mb-3">
               <CCol>
-                <CFormInput label="ID Number" name="cedula" value={form.cedula} onChange={handleChange} />
+                <CFormInput label="ID Number" name="id_card" value={form.id_card} onChange={handleChange} />
               </CCol>
             </CRow>
             <CRow className="mb-3">
@@ -152,6 +164,16 @@ const UserManagement = () => {
             <CRow className="mb-3">
               <CCol>
                 <CFormInput label="Birthdate" name="birthdate" type="date" value={form.birthdate} onChange={handleChange} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol>
+                <CFormCheck
+                  label="Active"
+                  name="is_active"
+                  checked={form.is_active}
+                  onChange={handleCheckChange}
+                />
               </CCol>
             </CRow>
           </CForm>

@@ -2,18 +2,25 @@ import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
   cibAdobeIllustrator,
+  cilBackspace,
   cilBell,
+  cilBook,
   cilCalculator,
   cilChartPie,
   cilCursor,
   cilDescription,
   cilDrop,
+  cilHandPointDown,
+  cilHandPointUp,
+  cilLibrary,
   cilNotes,
   cilPencil,
   cilPuzzle,
   cilSpeedometer,
   cilStar,
+  cilStorage,
   cilUser,
+  cilUserX,
 } from '@coreui/icons'
   import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
   
@@ -33,6 +40,46 @@ import {
     name: 'Users',
     to: '/Users',
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+},
+{
+  component: CNavTitle,
+  name: 'Modules',
+},
+{
+  component: CNavItem,
+  name: 'Books',
+  to: '/modules/books',
+  icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+},
+{
+  component: CNavItem,
+  name: 'Category Books',
+  to: '/modules/category_book',
+  icon: <CIcon icon={cilLibrary} customClassName="nav-icon" />,
+},
+{
+  component: CNavItem,
+  name: 'Loans',
+  to: '/modules/loans',
+  icon: <CIcon icon={cilHandPointUp} customClassName="nav-icon" />,
+},
+{
+  component: CNavItem,
+  name: 'Role',
+  to: '/modules/role',
+  icon: <CIcon icon={cilUserX} customClassName="nav-icon" />,
+},
+{
+  component: CNavItem,
+  name: 'Returns',
+  to: '/modules/returns',
+  icon: <CIcon icon={cilBackspace} customClassName="nav-icon" />,
+},
+{
+  component: CNavItem,
+  name: 'Lot',
+  to: '/modules/lot',
+  icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
 },
 
   {

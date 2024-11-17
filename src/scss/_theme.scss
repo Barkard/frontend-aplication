@@ -55,10 +55,11 @@ body {
   @include color-mode(dark) {
     body {
       background-color: var(--cui-dark-bg-subtle);
+      --cui-dark-bg-subtle: rgba(234, 74, 65, 0.712);
     }
 
     .footer {
-      --cui-footer-bg: var(--cui-body-bg);
+      --cui-footer-bg: rgba(234, 74, 65, 0.712);;
     }
   }
 }
