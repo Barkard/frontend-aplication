@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CButton,
   CContainer,
@@ -16,88 +16,70 @@ import {
   CForm,
   CFormInput,
   CFormSelect,
-  CCol,
   CRow,
+  CCol,
+  CAlert,
+  CSpinner
 } from '@coreui/react';
+import { fetchBooks, createBook, updateBook, deleteBook, fetchCategoryBooks } from '../../../../fetch';
 
-const Books = () => {
-  const [books, setBooks] = useState([
-    {
-      id_book: 1,
-      title: 'Book Title 1',
-      author: 'Author 1',
-      category: 'Fiction',
-      stock: 10,
-      cover: null,
-    },
-    {
-      id_book: 2,
-      title: 'Book Title 2',
-      author: 'Author 2',
-      category: 'Science',
-      stock: 5,
-      cover: null,
-    },
-  ]);
-
-  const [form, setForm] = useState({ id_book: '', title: '', author: '', category: '', stock: '', cover: null });
+const BooksManagement = () => {
+  const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [form, setForm] = useState({ id: '', title: '', author: '', category_id: '', description: '', cover_image: null });
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [imageModalVisible, setImageModalVisible] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [bookDetails, setBookDetails] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const categories = ['Fiction', 'Science', 'History', 'Technology'];
+  useEffect(() => {
+    loadBooks();
+    loadCategories();
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: name === 'id_book' || name === 'stock' ? parseInt(value, 10) : value });
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setForm({ ...form, cover: reader.result });
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const loadBooks = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchBooks();
+      setBooks(data);
+    } catch (error) {
+      setError('Error loading books');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const openModal = (book = { id_book: '', title: '', author: '', category: '', stock: '', cover: null }, editing = false) => {
+  const loadCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchCategoryBooks();
+      setCategories(data);
+    } catch (error) {
+      setError('Error loading categories');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    setForm({ ...form, cover_image: e.target.files[0] });
+  };
+
+  const openModal = (book = { id: '', title: '', author: '', category_id: '', description: '', cover_image: null }, editing = false) => {
     setForm(book);
     setIsEditing(editing);
-    setPreview(book.cover || null);
     setModalVisible(true);
   };
 
   const closeModal = () => {
     setModalVisible(false);
-    setForm({ id_book: '', title: '', author: '', category: '', stock: '', cover: null });
-    setPreview(null);
-  };
-
-  const getNewId = () => {
-    return books.length > 0 ? Math.max(...books.map((book) => book.id_book)) + 1 : 1;
-  };
-
-  const addBook = () => {
-    const newBook = { ...form, id_book: getNewId() };
-    setBooks([...books, newBook]);
-    closeModal();
-  };
-
-  const editBook = () => {
-    const updatedBooks = books.map((book) =>
-      book.id_book === form.id_book ? { ...book, ...form } : book
-    );
-    setBooks(updatedBooks);
-    closeModal();
+    setForm({ id: '', title: '', author: '', category_id: '', description: '', cover_image: null });
   };
 
   const openDeleteModal = (book) => {
@@ -110,147 +92,179 @@ const Books = () => {
     setBookToDelete(null);
   };
 
-  const deleteBook = () => {
-    setBooks(books.filter((book) => book.id_book !== bookToDelete.id_book));
-    closeDeleteModal();
+  const addBook = async () => {
+    setLoading(true);
+    try {
+      const newBook = { ...form };
+      delete newBook.id;
+      const createdBook = await createBook(newBook, form.cover_image);
+      setBooks([...books, createdBook]);
+      closeModal();
+    } catch (error) {
+      setError('Error adding book');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const openImageModal = (book) => {
-    setBookDetails(book);
-    setImagePreview(book.cover);
-    setImageModalVisible(true);
+  const editBook = async () => {
+    setLoading(true);
+    try {
+      const updatedBook = await updateBook(form.id, form, form.cover_image);
+      const updatedBooks = books.map((book) =>
+        book.id === form.id ? updatedBook : book
+      );
+      setBooks(updatedBooks);
+      closeModal();
+    } catch (error) {
+      setError('Error updating book');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const closeImageModal = () => {
-    setImageModalVisible(false);
-    setBookDetails(null);
-    setImagePreview(null);
+  const confirmDeleteBook = async () => {
+    setLoading(true);
+    try {
+      await deleteBook(bookToDelete.id);
+      setBooks(books.filter((book) => book.id !== bookToDelete.id));
+      closeDeleteModal();
+    } catch (error) {
+      setError('Error deleting book');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <CContainer className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <CSpinner />
+      </CContainer>
+    );
+  }
 
   return (
     <CContainer>
+      {error && <CAlert color="danger">{error}</CAlert>}
+
       <CButton color="success" onClick={() => openModal()} className="my-3">
         Add Book
       </CButton>
 
-      <CTable className="table table-dark table-hover">
+      <CTable className="table">
         <CTableHead>
           <CTableRow>
             <CTableHeaderCell>ID</CTableHeaderCell>
             <CTableHeaderCell>Title</CTableHeaderCell>
             <CTableHeaderCell>Author</CTableHeaderCell>
             <CTableHeaderCell>Category</CTableHeaderCell>
-            <CTableHeaderCell>Stock</CTableHeaderCell>
-            <CTableHeaderCell>Cover</CTableHeaderCell>
             <CTableHeaderCell>Actions</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
         <CTableBody>
           {books.map((book) => (
-            <CTableRow key={book.id_book}>
-              <CTableDataCell>{book.id_book}</CTableDataCell>
+            <CTableRow key={book.id}>
+              <CTableDataCell>{book.id}</CTableDataCell>
               <CTableDataCell>{book.title}</CTableDataCell>
               <CTableDataCell>{book.author}</CTableDataCell>
-              <CTableDataCell>{book.category}</CTableDataCell>
-              <CTableDataCell>{book.stock}</CTableDataCell>
+              <CTableDataCell>{categories.find((category) => category.id === book.category_id)?.name}</CTableDataCell>
               <CTableDataCell>
-                {book.cover ? (
-                  <img
-                    src={book.cover}
-                    alt="Cover"
-                    width="50"
-                    onClick={() => openImageModal(book)}  // Open image in larger view
-                    style={{ cursor: 'pointer' }}
-                  />
-                ) : (
-                  'No cover'
-                )}
-              </CTableDataCell>
-              <CTableDataCell>
-                <CButton color="primary" className="me-2" onClick={() => openModal(book, true)}>
-                  Edit
-                </CButton>
-                <CButton color="danger" onClick={() => openDeleteModal(book)}>
-                  Delete
-                </CButton>
+                <CButton color="primary" onClick={() => openModal(book, true)}>Edit</CButton>
+                <CButton color="danger" onClick={() => openDeleteModal(book)}>Delete</CButton>
               </CTableDataCell>
             </CTableRow>
           ))}
         </CTableBody>
       </CTable>
 
-      {/* Add/Edit Modal */}
+      {/* Modal for Add/Edit Book */}
       <CModal visible={modalVisible} onClose={closeModal}>
         <CModalHeader closeButton>
           <CModalTitle>{isEditing ? 'Edit Book' : 'Add Book'}</CModalTitle>
         </CModalHeader>
         <CModalBody>
           <CForm>
-            <CRow className="mb-3">
-              <CCol>
-                <CFormInput label="Title" name="title" value={form.title} onChange={handleChange} />
+            <CRow>
+              <CCol md={6}>
+                <CFormInput
+                  type="text"
+                  label="Title"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  required
+                />
               </CCol>
-            </CRow>
-            <CRow className="mb-3">
-              <CCol>
-                <CFormInput label="Author" name="author" value={form.author} onChange={handleChange} />
+              <CCol md={6}>
+                <CFormInput
+                  type="text"
+                  label="Author"
+                  name="author"
+                  value={form.author}
+                  onChange={handleChange}
+                  required
+                />
               </CCol>
-            </CRow>
-            <CRow className="mb-3">
-              <CCol>
+              <CCol md={12}>
                 <CFormSelect
                   label="Category"
-                  name="category"
-                  value={form.category}
+                  name="category_id"
+                  value={form.category_id}
                   onChange={handleChange}
+                  required
                 >
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
+                  <option value="">Select a Category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </CFormSelect>
               </CCol>
-            </CRow>
-            <CRow className="mb-3">
-              <CCol>
-                <CFormInput label="Stock" name="stock" type="number" value={form.stock} onChange={handleChange} />
+              <CCol md={12}>
+                <CFormInput
+                  type="text"
+                  label="Description"
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                />
+              </CCol>
+              <CCol md={12}>
+                <CFormInput
+                  type="file"
+                  label="Cover Image"
+                  name="cover_image"
+                  onChange={handleFileChange}
+                />
               </CCol>
             </CRow>
-            <CRow className="mb-3">
-              <CCol>
-                <CFormInput label="Cover" type="file" accept="image/*" onChange={handleImageChange} />
-              </CCol>
-            </CRow>
-            {preview && (
-              <CRow>
-                <CCol>
-                  <img src={preview} alt="Preview" style={{ maxWidth: '100%' }} />
-                </CCol>
-              </CRow>
-            )}
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={isEditing ? editBook : addBook}>
-            {isEditing ? 'Save Changes' : 'Add'}
-          </CButton>
           <CButton color="secondary" onClick={closeModal}>
             Cancel
+          </CButton>
+          <CButton
+            color="primary"
+            onClick={isEditing ? editBook : addBook}
+          >
+            {isEditing ? 'Update' : 'Add'}
           </CButton>
         </CModalFooter>
       </CModal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Modal for Delete */}
       <CModal visible={deleteModalVisible} onClose={closeDeleteModal}>
         <CModalHeader closeButton>
           <CModalTitle>Confirm Deletion</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          Are you sure you want to delete the book <strong>{bookToDelete?.title}</strong>?
+          Are you sure you want to delete this book?
         </CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={deleteBook}>
+          <CButton color="danger" onClick={confirmDeleteBook}>
             Delete
           </CButton>
           <CButton color="secondary" onClick={closeDeleteModal}>
@@ -258,23 +272,8 @@ const Books = () => {
           </CButton>
         </CModalFooter>
       </CModal>
-
-      {/* Image Preview Modal */}
-      <CModal visible={imageModalVisible} onClose={closeImageModal}>
-        <CModalHeader closeButton>
-          <CModalTitle>{bookDetails?.title} - {bookDetails?.category}</CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          {imagePreview && <img src={imagePreview} alt="Large View" style={{ maxWidth: '100%' }} />}
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={closeImageModal}>
-            Close
-          </CButton>
-        </CModalFooter>
-      </CModal>
     </CContainer>
   );
 };
 
-export default Books;
+export default BooksManagement;
