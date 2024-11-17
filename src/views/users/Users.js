@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CButton,
   CContainer,
@@ -17,22 +17,37 @@ import {
   CFormInput,
   CCol,
   CRow,
-  CFormCheck,  // Importamos el componente de CoreUI para el checkbox
+  CFormCheck,
+  CAlert,
+  CSpinner
 } from '@coreui/react';
+import { fetchUsers, createUser, updateUser, deleteUser } from '../../../fetch';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Leon', lastname: 'Pineda', id_card: 28168315, email: 'leonpineda@gmail.com', birthdate: '2000-06-15', is_active: true },
-    { id: 2, name: 'Diana', lastname: 'Pineda', id_card: 28168314, email: 'dianapineda@gmail.com', birthdate: '2001-11-22', is_active: true },
-    { id: 3, name: 'Roaxi', lastname: 'Gamboa', id_card: 30152152, email: 'roaxig@gmail.com', birthdate: '2003-10-20', is_active: true },
-    { id: 4, name: 'Carlos', lastname: 'Mora', id_card: 28168316, email: 'carlosmora@gmail.com', birthdate: '2000-08-16', is_active: true },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ id: '', name: '', lastname: '', id_card: '', email: '', birthdate: '', is_active: true });
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (error) {
+      setError('Error loading users');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -63,31 +78,62 @@ const UserManagement = () => {
     setUserToDelete(null);
   };
 
-  const getNewId = () => {
-    return users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1;
+  const addUser = async () => {
+    setLoading(true);
+    try {
+      const newUser = { ...form };
+      delete newUser.id;
+      const createdUser = await createUser(newUser);
+      setUsers([...users, createdUser]);
+      closeModal();
+    } catch (error) {
+      setError('Error adding user');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const addUser = () => {
-    const newUser = { ...form, id: getNewId() };
-    setUsers([...users, newUser]);
-    closeModal();
+  const editUser = async () => {
+    setLoading(true);
+    try {
+      const updatedUser = await updateUser(form.id, form);
+      const updatedUsers = users.map((user) =>
+        user.id === form.id ? updatedUser : user
+      );
+      setUsers(updatedUsers);
+      closeModal();
+    } catch (error) {
+      setError('Error updating user');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const editUser = () => {
-    const updatedUsers = users.map((user) =>
-      user.id === form.id ? { ...user, ...form } : user
+  const confirmDeleteUser = async () => {
+    setLoading(true);
+    try {
+      await deleteUser(userToDelete.id);
+      setUsers(users.filter((user) => user.id !== userToDelete.id));
+      closeDeleteModal();
+    } catch (error) {
+      setError('Error deleting user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <CContainer className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <CSpinner />
+      </CContainer>
     );
-    setUsers(updatedUsers);
-    closeModal();
-  };
-
-  const deleteUser = () => {
-    setUsers(users.filter((user) => user.id !== userToDelete.id));
-    closeDeleteModal();
-  };
+  }
 
   return (
     <CContainer>
+      {error && <CAlert color="danger">{error}</CAlert>}
+
       <CButton color="success" onClick={() => openModal()} className="my-3">
         Add User
       </CButton>
@@ -168,22 +214,17 @@ const UserManagement = () => {
             </CRow>
             <CRow className="mb-3">
               <CCol>
-                <CFormCheck
-                  label="Active"
-                  name="is_active"
-                  checked={form.is_active}
-                  onChange={handleCheckChange}
-                />
+                <CFormCheck label="Active" checked={form.is_active} onChange={handleCheckChange} />
               </CCol>
             </CRow>
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton color="primary" onClick={isEditing ? editUser : addUser}>
-            {isEditing ? 'Save Changes' : 'Add'}
-          </CButton>
           <CButton color="secondary" onClick={closeModal}>
-            Cancel
+            Close
+          </CButton>
+          <CButton color="primary" onClick={isEditing ? editUser : addUser}>
+            {isEditing ? 'Save Changes' : 'Add User'}
           </CButton>
         </CModalFooter>
       </CModal>
@@ -193,15 +234,13 @@ const UserManagement = () => {
         <CModalHeader closeButton>
           <CModalTitle>Confirm Deletion</CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          Are you sure you want to delete user <strong>{userToDelete?.name}</strong>?
-        </CModalBody>
+        <CModalBody>Are you sure you want to delete this user?</CModalBody>
         <CModalFooter>
-          <CButton color="danger" onClick={deleteUser}>
-            Delete
-          </CButton>
           <CButton color="secondary" onClick={closeDeleteModal}>
             Cancel
+          </CButton>
+          <CButton color="danger" onClick={confirmDeleteUser}>
+            Delete
           </CButton>
         </CModalFooter>
       </CModal>
