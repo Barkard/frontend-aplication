@@ -26,7 +26,7 @@ import { fetchBooks, createBook, updateBook, deleteBook, fetchCategoryBooks } fr
 const BooksManagement = () => {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ id: '', title: '', author: '', category_id: '', description: '', cover_image: null });
+  const [form, setForm] = useState({ id: '', title: '', author: '', category_id: '', description: '' });
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -67,11 +67,7 @@ const BooksManagement = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setForm({ ...form, cover_image: e.target.files[0] });
-  };
-
-  const openModal = (book = { id: '', title: '', author: '', category_id: '', description: '', cover_image: null }, editing = false) => {
+  const openModal = (book = { id: '', title: '', author: '', category_id: '', description: '' }, editing = false) => {
     setForm(book);
     setIsEditing(editing);
     setModalVisible(true);
@@ -79,7 +75,7 @@ const BooksManagement = () => {
 
   const closeModal = () => {
     setModalVisible(false);
-    setForm({ id: '', title: '', author: '', category_id: '', description: '', cover_image: null });
+    setForm({ id: '', title: '', author: '', category_id: '', description: '' });
   };
 
   const openDeleteModal = (book) => {
@@ -96,12 +92,32 @@ const BooksManagement = () => {
     setLoading(true);
     try {
       const newBook = { ...form };
-      delete newBook.id;
-      const createdBook = await createBook(newBook, form.cover_image);
+      delete newBook.id; // Eliminar el id antes de enviar
+      const bookData = {
+        title: newBook.title,
+        author: newBook.author,
+        category_id: newBook.category_id,
+        description: newBook.description
+      };
+  
+      const response = await fetch('http://localhost:3001/books', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookData), // Solo datos JSON sin imagen
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error creating book');
+      }
+  
+      const createdBook = await response.json();
       setBooks([...books, createdBook]);
       closeModal();
     } catch (error) {
       setError('Error adding book');
+      console.error('Error creating book:', error);
     } finally {
       setLoading(false);
     }
@@ -110,7 +126,7 @@ const BooksManagement = () => {
   const editBook = async () => {
     setLoading(true);
     try {
-      const updatedBook = await updateBook(form.id, form, form.cover_image);
+      const updatedBook = await updateBook(form.id, form);
       const updatedBooks = books.map((book) =>
         book.id === form.id ? updatedBook : book
       );
@@ -229,14 +245,6 @@ const BooksManagement = () => {
                   name="description"
                   value={form.description}
                   onChange={handleChange}
-                />
-              </CCol>
-              <CCol md={12}>
-                <CFormInput
-                  type="file"
-                  label="Cover Image"
-                  name="cover_image"
-                  onChange={handleFileChange}
                 />
               </CCol>
             </CRow>

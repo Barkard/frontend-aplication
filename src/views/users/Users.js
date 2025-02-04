@@ -32,6 +32,7 @@ const UserManagement = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -80,6 +81,15 @@ const UserManagement = () => {
 
   const addUser = async () => {
     setLoading(true);
+
+    const existingUser = users.find((user) => user.id_card === form.id_card);
+    if (existingUser) {
+      openErrorModal('Error: ID Number already exists');
+      setLoading(false);
+
+      return;
+    }
+
     try {
       const newUser = { ...form };
       delete newUser.id;
@@ -87,7 +97,7 @@ const UserManagement = () => {
       setUsers([...users, createdUser]);
       closeModal();
     } catch (error) {
-      setError('Error adding user');
+      openErrorModal('Error adding user');
     } finally {
       setLoading(false);
     }
@@ -121,6 +131,15 @@ const UserManagement = () => {
       setLoading(false);
     }
   };
+
+  const openErrorModal = (message) => {
+    setError(message);
+    setErrorModalVisible(true);
+  };
+  
+  const closeErrorModal = () => {
+    setErrorModalVisible(false);
+  };  
 
   if (loading) {
     return (

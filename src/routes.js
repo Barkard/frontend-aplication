@@ -14,7 +14,7 @@ const Category_Book = React.lazy(() => import('./views/modules/category_book/Cat
 const Loans = React.lazy(() => import('./views/modules/loans/Loans'))
 const Role = React.lazy(() => import('./views/modules/role/Role'))
 const Returns = React.lazy(() => import('./views/modules/returns/Returns'))
-const Lot = React.lazy(() => import('./views/modules/lot/Lot'))
+const Reservations = React.lazy(() => import('./views/modules/reservations/Reservations'))
 
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
@@ -66,15 +66,15 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/users', name: 'Users', element: Users }, // Ruta única y limpia
-  { path: '/profile', name: 'Profile', element: Profile }, // Evita duplicados
-  { path: '/modules', name: 'Modules', element: Colors }, // Estructura de módulos
+  { path: '/users', name: 'Users', element: Users },
+  { path: '/profile', name: 'Profile', element: Profile },
+  { path: '/modules', name: 'Modules', element: Colors },
   { path: '/modules/category_book', name: 'Category_Book', element: Category_Book },
-  { path: '/modules/books', name: 'Books', element: Books }, // Ruta correcta para libros
+  { path: '/modules/books', name: 'Books', element: Books },
   { path: '/modules/loans', name: 'Loans', element: Loans },
   { path: '/modules/role', name: 'Role', element: Role },
   { path: '/modules/returns', name: 'Returns', element: Returns},
-  { path: '/modules/lot', name: 'Lot', element: Lot},
+  { path: '/modules/reservations', name: 'Reservations', element: Reservations},
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },

@@ -158,3 +158,13 @@ export const deleteBook = async (id) => {
     throw error;
   }
 };
+
+export const createReservation = async (reservationData) => {
+  try {
+    const response = await axios.post(`${API_URL}/reservations`, reservationData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating reservation:', error);
+    throw error;
+  }
+}

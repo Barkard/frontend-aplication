@@ -77,9 +77,9 @@ import {
 },
 {
   component: CNavItem,
-  name: 'Lot',
-  to: '/modules/lot',
-  icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+  name: 'Reservations',
+  to: '/modules/reservations',
+  icon: <CIcon icon={cilBackspace} customClassName="nav-icon" />,
 },
 
   {
